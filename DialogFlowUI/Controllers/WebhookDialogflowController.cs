@@ -23,7 +23,7 @@ namespace DialogFlowUI
         [HttpPost]
         public IHttpActionResult GetWebhookResponse()
         {
-            //  byte[] request = await Request.Content.ReadAsByteArrayAsync();
+           
             WebhookRequest request;
             using (var reader = new StreamReader(HttpContext.Current.Request.InputStream))
             {
@@ -41,7 +41,7 @@ namespace DialogFlowUI
                 case "input.flight":
                     var flightDate = parameters.Fields["date"].ToString();
                     var flyingFrom = parameters.Fields["flyingFrom"].ToString();
-                    var flyingTo= parameters.Fields["flyingTo"].ToString();
+                    var flyingTo = parameters.Fields["flyingTo"].ToString();
                     response.FulfillmentText = $"Congrax your flight from {flyingFrom} to {flyingTo} booked for {flightDate}";
                     return Ok(response);
                 case "input.hotal":
@@ -52,6 +52,51 @@ namespace DialogFlowUI
                     return Ok(response);
             }
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+
+        [Route("Test")]
+        [HttpPost]
+        public async Task<IHttpActionResult> GetResponse()
+        {
+           // var result = await Request.Content.ReadAsStreamAsync();
+            //  byte[] request = await Request.Content.ReadAsByteArrayAsync();
+            //HttpContext.Current.Request.InputStream
+
+             WebhookRequest request;
+            using (var reader = new StreamReader(await Request.Content.ReadAsStreamAsync()))
+            {
+                request = jsonParser.Parse<WebhookRequest>(reader);
+            }
+
+            var actionType = request.QueryResult.Action;
+            var parameters = request.QueryResult.Parameters;
+            var response = new WebhookResponse();
+            switch (actionType)
+            {
+                case "input.welcome":
+                    response.FulfillmentText = $"Hi {CurrentUser.UserName}, I am trip palnner agent how can help you.";
+                    return Ok(response);
+                case "input.flight":
+                    var flightDate = parameters.Fields["date"].ToString();
+                    var flyingFrom = parameters.Fields["flyingFrom"].ToString();
+                    var flyingTo = parameters.Fields["flyingTo"].ToString();
+                    response.FulfillmentText = $"Congrax your flight from {flyingFrom} to {flyingTo} booked for {flightDate}";
+                    return Ok(response);
+                case "input.hotal":
+                    response.FulfillmentText = "your hotal has been booked";
+                    return Ok(response);
+                default:
+                    response.FulfillmentText = "Sorry ask somting else";
+                    return Ok(response);
+            }
+        }
+
+
 
     }
 }
