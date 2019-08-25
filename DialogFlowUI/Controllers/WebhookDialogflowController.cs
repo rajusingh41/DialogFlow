@@ -35,7 +35,7 @@ namespace DialogFlowUI
             var response = new WebhookResponse();
             switch (actionType)
             {
-                case "input.Welcome":
+                case "input.welcome":
                     response.FulfillmentText = $"Hi {CurrentUser.UserName}, I am trip palnner agent how can help you.";
                     return Ok(response);
                 case "input.flight":
