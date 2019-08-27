@@ -1,4 +1,4 @@
-﻿
+
 
 <div class="jumbotron">
     <h1>Welcome</h1>
@@ -12,6 +12,36 @@
 
 <script type="text/javascript">
     (function (d, m) {
+
+        /*---------------- Kommunicate settings start ----------------*/
+        var kommunicateSettings = {
+            "appId": "300c81efb740f94cd12ad949f065ff267",
+            "popupWidget": true,
+            "automaticChatOpenOnNavigation": true,
+             "onInit": function (){
+                 var chatContext = {
+                     "UserId": "10",
+                     "DomainCode": "dgn5"
+                 };
+                 Kommunicate.updateSettings({ "KM_CHAT_CONTEXT": chatContext });
+            },
+        };
+        /*----------------- Kommunicate settings end ------------------*/
+
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
+        var h = document.getElementsByTagName("head")[0];
+        h.appendChild(s);
+        window.kommunicate = m;
+        m._globals = kommunicateSettings;
+    })(document, window.kommunicate || {});
+</script>
+
+
+@*<script type="text/javascript">
+    (function (d, m) {
         var s, h;
         s = document.createElement("script");
         s.type = "text/javascript";
@@ -22,4 +52,4 @@
         window.applozic = m;
         m.init = function (t) { m._globals = t; }
     })(document, window.applozic || {});
-</script>
+</script>*@
