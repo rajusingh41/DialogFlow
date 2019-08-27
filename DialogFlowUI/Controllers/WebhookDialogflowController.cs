@@ -54,46 +54,66 @@ namespace DialogFlowUI
         }
 
 
-        /// <summary>
+         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
 
         [Route("Test")]
         [HttpPost]
-        public async Task<IHttpActionResult> GetResponse()
+        public async Task<HttpResponseMessage> GetResponse()
         {
-           // var result = await Request.Content.ReadAsStreamAsync();
-            //  byte[] request = await Request.Content.ReadAsByteArrayAsync();
-            //HttpContext.Current.Request.InputStream
-
-             WebhookRequest request;
-            using (var reader = new StreamReader(await Request.Content.ReadAsStreamAsync()))
+            WebhookRequest request;
+            using (var stream = await Request.Content.ReadAsStreamAsync())
             {
-                request = jsonParser.Parse<WebhookRequest>(reader);
+                using (var reader = new StreamReader(stream))
+                {
+                    request = jsonParser.Parse<WebhookRequest>(reader);
+                }
             }
 
             var actionType = request.QueryResult.Action;
             var parameters = request.QueryResult.Parameters;
-            var response = new WebhookResponse();
+            var webhookResponse = new WebhookResponse();
+            var _response = Request.CreateResponse();
             switch (actionType)
             {
                 case "input.welcome":
-                    response.FulfillmentText = $"Hi {CurrentUser.UserName}, I am trip palnner agent how can help you.";
-                    return Ok(response);
+                    webhookResponse.FulfillmentText = $"Hi {CurrentUser.UserName}, I am trip palnner agent how can help you.";
+                    return httpResponceMessage(webhookResponse, _response);
                 case "input.flight":
                     var flightDate = parameters.Fields["date"].ToString();
                     var flyingFrom = parameters.Fields["flyingFrom"].ToString();
                     var flyingTo = parameters.Fields["flyingTo"].ToString();
-                    response.FulfillmentText = $"Congrax your flight from {flyingFrom} to {flyingTo} booked for {flightDate}";
-                    return Ok(response);
+                    webhookResponse.FulfillmentText = $"Congrax your flight from {flyingFrom} to {flyingTo} booked for {flightDate}";
+                    return httpResponceMessage(webhookResponse, _response);
                 case "input.hotal":
-                    response.FulfillmentText = "your hotal has been booked";
-                    return Ok(response);
+                    webhookResponse.FulfillmentText = "your hotal has been booked";
+                    _response.Content = new StringContent(webhookResponse.ToString());
+                    _response.StatusCode = HttpStatusCode.OK;
+                    _response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    return _response;
                 default:
-                    response.FulfillmentText = "Sorry ask somting else";
-                    return Ok(response);
+                    webhookResponse.FulfillmentText = "Sorry ask somting else";
+                    _response.Content = new StringContent(webhookResponse.ToString());
+                    _response.StatusCode = HttpStatusCode.OK;
+                    _response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    return _response;
             }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webhookResponse"></param>
+        /// <param name="_response"></param>
+        /// <returns></returns>
+
+        private static HttpResponseMessage httpResponceMessage(WebhookResponse webhookResponse, HttpResponseMessage _response)
+        {
+            _response.Content = new StringContent(webhookResponse.ToString());
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return _response;
         }
 
 
